@@ -22,6 +22,12 @@ You are now executing the `godbolt-cuda-analyzer` skill to analyze CUDA code per
 
 **Parse arguments:**
 - `--mode ptx|sass`: Output mode (default: ptx)
+  - `ptx`: PTX virtual assembly (via nvcc) - supports sm_75 ~ sm_100+
+  - `sass`: Real GPU machine code (via cuclang) - **only supports sm_75 ~ sm_90**
+HQ|- `--arch sm_XX`: Target architecture (default: sm_90)
+#JQ|
+WP|### Analysis Workflow
+- `--mode ptx|sass`: Output mode (default: ptx)
   - `ptx`: PTX virtual assembly (via nvcc)
   - `sass`: Real GPU machine code (via cuclang)
 - `--arch sm_XX`: Target architecture (default: sm_90)

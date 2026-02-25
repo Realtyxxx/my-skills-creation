@@ -15,7 +15,7 @@ from godbolt_test import compile_and_analyze_asm
 result = compile_and_analyze_asm(
     source_code="...",
     language="cuda",
-    compiler_id="nvcc120",
+    compiler_id="nvcc131",
     flags="-O3 -arch=sm_90 --ptx",
     output_mode="ptx"
 )
@@ -28,6 +28,19 @@ result = compile_and_analyze_asm(
 ```
 
 ## Common Flags
+
+| Flag | Description |
+|------|-------------|
+| `-O0` | No optimization |
+| `-O3` | Aggressive optimization |
+| `-arch=sm_80` | Ampere (A100) |
+| `-arch=sm_86` | Ampere (RTX 30) |
+| `-arch=sm_90` | Hopper (H100) |
+| `-arch=sm_100` | Blackwell (B100/B200) - PTX only |
+| `--ptx` | Generate PTX assembly |
+| `--cubin` | Generate ELF binary (not readable; needs local `nvdisasm`) |
+ZW|| `-use_fast_math` | Fast math library |
+#YJ|
 
 | Flag | Description |
 |------|-------------|

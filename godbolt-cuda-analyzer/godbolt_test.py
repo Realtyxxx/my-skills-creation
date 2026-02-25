@@ -3,6 +3,9 @@ import re
 import requests
 import json
 
+# PTX 模式使用的默认 NVCC 编译器
+DEFAULT_PTX_COMPILER = "nvcc131"
+
 # SASS 模式使用的默认 cuclang 编译器（Clang 20.1.0 + CUDA 12.9.1, sm_90）
 DEFAULT_SASS_COMPILER = "cuclang2010-1291"
 
@@ -11,18 +14,18 @@ def _convert_flags_for_cuclang(flags: str) -> str:
     """将 nvcc 风格的 flags 转换为 cuclang (Clang CUDA) 风格。"""
     result = flags
     # -arch=sm_XX → --cuda-gpu-arch=sm_XX
-    result = re.sub(r'-arch=(\S+)', r'--cuda-gpu-arch=\1', result)
+    result = re.sub(r"-arch=(\S+)", r"--cuda-gpu-arch=\1", result)
     # 去掉 --ptx（cuclang SASS 模式不需要）
-    result = re.sub(r'--ptx\b', '', result)
+    result = re.sub(r"--ptx\b", "", result)
     # 去掉 --cubin
-    result = re.sub(r'--cubin\b', '', result)
+    result = re.sub(r"--cubin\b", "", result)
     return result.strip()
 
 
 def compile_and_analyze_asm(
     source_code: str,
     language: str = "cuda",
-    compiler_id: str = "nvcc120",
+    compiler_id: str = DEFAULT_PTX_COMPILER,
     flags: str = "-O3 -arch=sm_90 --ptx",
     output_mode: str = "ptx",
 ) -> dict:
@@ -32,7 +35,7 @@ def compile_and_analyze_asm(
     Args:
         source_code: CUDA 源代码
         language: 语言，默认 "cuda"
-        compiler_id: 编译器 ID，PTX 模式默认 "nvcc120"，SASS 模式自动切换为 cuclang
+        compiler_id: 编译器 ID，PTX 模式默认 nvcc131，SASS 模式自动切换为 cuclang
         flags: 编译器参数，默认 "-O3 -arch=sm_90 --ptx"
         output_mode: "ptx" 返回 PTX 虚拟汇编，"sass" 返回真实 GPU 机器码（SASS）
 
@@ -42,9 +45,12 @@ def compile_and_analyze_asm(
     mode = output_mode.lower()
     if mode not in ("ptx", "sass"):
         return {
-            "success": False, "asm": "", "mode": mode,
+            "success": False,
+            "asm": "",
+            "mode": mode,
             "stderr": f"不支持的 output_mode: {output_mode}，请使用 'ptx' 或 'sass'",
-            "raw_code": -1, "compiler_used": "",
+            "raw_code": -1,
+            "compiler_used": "",
         }
 
     # SASS 模式：自动切换编译器和 flags
@@ -90,12 +96,17 @@ def compile_and_analyze_asm(
             result_data = response.json()
         except (json.JSONDecodeError, ValueError) as e:
             return {
-                "success": False, "asm": "", "mode": mode,
+                "success": False,
+                "asm": "",
+                "mode": mode,
                 "stderr": f"API 返回非 JSON 内容 (可能被限流): {str(e)}",
-                "raw_code": -1, "compiler_used": actual_compiler,
+                "raw_code": -1,
+                "compiler_used": actual_compiler,
             }
 
-        asm_lines = [line_obj.get("text", "") for line_obj in result_data.get("asm", [])]
+        asm_lines = [
+            line_obj.get("text", "") for line_obj in result_data.get("asm", [])
+        ]
         compiled_asm = "\n".join(asm_lines)
 
         stderr_lines = [err.get("text", "") for err in result_data.get("stderr", [])]
@@ -112,7 +123,10 @@ def compile_and_analyze_asm(
 
     except requests.exceptions.RequestException as e:
         return {
-            "success": False, "asm": "", "mode": mode,
+            "success": False,
+            "asm": "",
+            "mode": mode,
             "stderr": f"API 请求失败: {str(e)}",
-            "raw_code": -1, "compiler_used": actual_compiler,
+            "raw_code": -1,
+            "compiler_used": actual_compiler,
         }

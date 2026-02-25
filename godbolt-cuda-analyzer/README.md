@@ -49,7 +49,7 @@ from godbolt_test import compile_and_analyze_asm
 result = compile_and_analyze_asm(
     source_code: str,
     language: str = "cuda",
-    compiler_id: str = "nvcc120",
+    compiler_id: str = "nvcc131",
     flags: str = "-O3 -arch=sm_90 --ptx",
     output_mode: str = "ptx"   # "ptx" 或 "sass"
 )
@@ -59,6 +59,20 @@ result = compile_and_analyze_asm(source_code, output_mode="sass")
 ```
 
 ## Supported Architectures
+
+**PTX 模式（nvcc）**：
+- `sm_75` - Turing (RTX 20 series)
+- `sm_80` - Ampere (A100)
+- `sm_86` - Ampere (RTX 30 series)
+- `sm_89` - Ada Lovelace (RTX 40 series)
+- `sm_90` - Hopper (H100)
+- `sm_100` - Blackwell (B100/B200) - **PTX only**
+
+**SASS 模式（cuclang）**：仅支持 `sm_75` ~ `sm_90`
+
+XZ|> ⚠️ **注意**：SASS 模式暂不支持 Blackwell (sm_100)，请使用 PTX 模式。
+#HQ|
+#PR|## Common Use Cases
 
 - `sm_75` - Turing (RTX 20 series)
 - `sm_80` - Ampere (A100)

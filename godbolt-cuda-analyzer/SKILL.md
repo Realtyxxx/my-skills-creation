@@ -41,7 +41,7 @@ from godbolt_test import compile_and_analyze_asm
 result = compile_and_analyze_asm(
     source_code: str,
     language: str = "cuda",
-    compiler_id: str = "nvcc120",
+    compiler_id: str = "nvcc131",
     flags: str = "-O3 -arch=sm_90 --ptx",
     output_mode: str = "ptx"   # "ptx" 或 "sass"
 )
@@ -213,9 +213,36 @@ Your Response:
 - `-O0` - No optimization (debugging)
 - `-O1` - Basic optimization
 - `-O2` - Standard optimization
-- `-O3` - Aggressive optimization (recommended)
+#YM|- `-O3` - Aggressive optimization (recommended)
+#BB|
+#RP|### Target Architectures
+#MH|
+#SW|**PTX 模式（nvcc）**：
+#HV|- `-arch=sm_75` - Turing (RTX 20 series)
+#BS|- `-arch=sm_80` - Ampere (A100)
+#VM|- `-arch=sm_86` - Ampere (RTX 30 series)
+#MJ|- `-arch=sm_89` - Ada Lovelace (RTX 40 series)
+#MH|- `-arch=sm_90` - Hopper (H100)
+#NR|- `-arch=sm_100` - Blackwell (B100/B200) - **PTX only**, SASS not supported
+#VQ|
+#RH|**SASS 模式（cuclang）**：仅支持 `sm_75` ~ `sm_90`（Hopper 及之前）
+#TZ|
+#PQ|> ⚠️ **SASS 模式限制**：cuclang 编译器目前不支持 Blackwell (sm_100)。如需分析 sm_100，请使用 PTX 模式。
+#MK|### Output Formats
 
 ### Target Architectures
+
+**PTX 模式（nvcc）**：
+- `-arch=sm_75` - Turing (RTX 20 series)
+- `-arch=sm_80` - Ampere (A100)
+- `-arch=sm_86` - Ampere (RTX 30 series)
+- `-arch=sm_89` - Ada Lovelace (RTX 40 series)
+- `-arch=sm_90` - Hopper (H100)
+- `-arch=sm_100` - Blackwell (B100/B200) - **PTX only**, SASS not supported
+
+**SASS 模式（cuclang）**：仅支持 `sm_75` ~ `sm_90`（Hopper 及之前）
+
+> ⚠️ **SASS 模式限制**：cuclang 编译器目前不支持 Blackwell (sm_100)。如需分析 sm_100，请使用 PTX 模式。
 - `-arch=sm_75` - Turing (RTX 20 series)
 - `-arch=sm_80` - Ampere (A100)
 - `-arch=sm_86` - Ampere (RTX 30 series)
@@ -309,6 +336,21 @@ cd ${SKILL_DIR}
 ```
 
 ## Important Notes
+
+1. **API Rate Limits**: Godbolt may throttle requests - avoid rapid-fire calls
+2. **Encoding**: Always use UTF-8 encoding for Chinese output
+3. **PTX vs SASS**: 
+   - PTX 模式使用 nvcc（默认 nvcc131），支持 sm_75 ~ sm_100+
+   - SASS 模式自动切换到 cuclang (Clang CUDA) + `binary=True`
+4. **SASS 编译器限制**: 
+   - SASS 模式使用 `cuclang2010-1291` (Clang 20.1.0 + CUDA 12.9.1)
+   - **仅支持 sm_75 ~ sm_90**，不支持 Blackwell (sm_100)
+   - 如需分析 sm_100，请使用 PTX 模式
+5. **Compiler Versions**: Different NVCC versions may optimize differently
+6. **Architecture Differences**: sm_80 vs sm_90 vs sm_100 have different instruction sets
+ZV|7. **Privacy**: `allowStoreCodeDebug` is set to `False` by default. Do not send proprietary kernel code without user consent
+#ZK|
+#NB|## Error Handling
 
 1. **API Rate Limits**: Godbolt may throttle requests - avoid rapid-fire calls
 2. **Encoding**: Always use UTF-8 encoding for Chinese output

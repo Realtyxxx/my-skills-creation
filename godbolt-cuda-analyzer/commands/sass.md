@@ -8,6 +8,12 @@ allowed-tools: ["Read", "Bash(python3:*)"]
 
 Analyze CUDA code at the SASS (real GPU machine code) level using cuclang compiler.
 
+## ⚠️ SASS Mode Limitations
+
+**SASS 模式目前仅支持 sm_75 ~ sm_90（Hopper 及之前）。**
+
+**不支持 Blackwell (sm_100)** - 如需分析 sm_100，请使用 PTX 模式。
+
 ## Execution
 
 ```python
@@ -22,7 +28,7 @@ from godbolt_test import compile_and_analyze_asm
 result = compile_and_analyze_asm(
     source_code,
     output_mode="sass",  # Automatically uses cuclang + binary mode
-    flags="-O3 -arch=sm_90"  # Adjust arch if user specifies
+    flags="-O3 -arch=sm_90"  # Only sm_75 ~ sm_90 supported
 )
 
 if result["success"]:
