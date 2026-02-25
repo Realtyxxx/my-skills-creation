@@ -12,8 +12,8 @@ This repository is used to:
 
 ## Current Structure
 
-- `godbolt-cuda-analyzer` (symlink)
-- `llm-op-analyzer` (symlink)
+- `godbolt-cuda-analyzer/` - CUDA performance analysis skill (PTX/SASS via Godbolt)
+- `llm-op-analyzer/` - LLM operator analysis skill (13-section documentation)
 
 ## Next Steps
 
