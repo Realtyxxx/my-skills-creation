@@ -1,0 +1,78 @@
+# NVCC Compilation Configuration Template
+
+# Basic Configuration
+input_file: "kernel.cu"
+output_type: "ptx"  # Options: ptx, cubin, sass, fatbin, all
+
+# Architecture Configuration
+architectures:
+  - "sm_80"   # A100, A30
+  - "sm_86"   # RTX 3090, RTX A6000
+  - "sm_90"   # H100
+
+# Compilation Options
+optimization_level: 3  # 0-3
+use_fast_math: false
+generate_debug_info: false
+generate_line_info: false
+keep_intermediate_files: false
+verbose: true
+
+# PTX Assembler Options
+ptxas_options:
+  - "-v"  # Verbose output (register/memory usage)
+  # - "--warn-on-spills"
+  # - "--warn-on-local-memory-usage"
+
+# Host Compiler Options
+compiler_options:
+  # - "-Wall"
+  # - "-Wextra"
+  # - "-O3"
+
+# Additional NVCC Flags
+additional_flags:
+  # - "-rdc=true"  # Relocatable device code
+  # - "--use_fast_math"
+  # - "-lineinfo"
+
+# Output Configuration
+output_directory: "."
+output_filename: null  # null = auto-generate from input
+
+# Analysis Options
+analyze_output: true
+show_statistics: true
+extract_sass: false  # Only for cubin output
+
+# Examples of Common Configurations
+
+# Example 1: PTX Generation for Single Architecture
+# output_type: "ptx"
+# architectures: ["sm_80"]
+# verbose: true
+
+# Example 2: Multi-Architecture Cubin
+# output_type: "cubin"
+# architectures: ["sm_80", "sm_86", "sm_90"]
+# optimization_level: 3
+
+# Example 3: SASS Assembly with Analysis
+# output_type: "sass"
+# architectures: ["sm_80"]
+# extract_sass: true
+# analyze_output: true
+
+# Example 4: Debug Build
+# output_type: "cubin"
+# architectures: ["sm_80"]
+# optimization_level: 0
+# generate_debug_info: true
+# generate_line_info: true
+
+# Example 5: Optimized Production Build
+# output_type: "fatbin"
+# architectures: ["sm_80", "sm_86", "sm_89", "sm_90"]
+# optimization_level: 3
+# use_fast_math: true
+# keep_intermediate_files: false
