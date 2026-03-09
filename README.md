@@ -14,6 +14,8 @@ This repository is used to:
 
 - `godbolt-cuda-analyzer/` - CUDA performance analysis skill (PTX/SASS via Godbolt)
 - `llm-op-analyzer/` - LLM operator analysis skill (13-section documentation)
+- `nvcc-blackwell-ir-extractor/` - Blackwell (sm_100/sm_100a) IR extraction and SASS dump utility
+- `nvcc-compiler/` - Comprehensive CUDA compilation and IR generation skill (PTX/SASS/cubin/fatbin)
 
 ## Next Steps
 
