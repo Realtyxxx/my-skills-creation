@@ -27,11 +27,11 @@ venv/
 .env
 .env.*
 
+# Build/IR output artifacts
+test_*
+
 # Local git worktrees
 .worktrees/
-
-# Build/IR output artifacts
-nvcc-blackwell-ir-extractor/test_ir_output/
 
 # Archive files
 *.zip

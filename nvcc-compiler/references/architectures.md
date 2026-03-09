@@ -85,6 +85,30 @@ printf("Compute Capability: %d.%d\n", prop.major, prop.minor);
 /usr/local/cuda/samples/bin/x86_64/linux/release/deviceQuery
 ```
 
+## Selection Patterns
+
+### Development and testing
+
+- Prefer PTX generation with a single `compute_XX` target when the goal is to
+  inspect virtual ISA or keep forward-compatible output.
+- Keep the architecture family thin pages focused on family-specific caveats,
+  then return here for cross-family comparisons.
+
+### Multi-GPU support
+
+- Use cubin or fatbin generation with multiple `sm_XX` targets when deployment
+  spans more than one GPU family.
+- For multi-target cubin or fatbin requests, follow the script pattern of one
+  `-gencode=arch=compute_XX,code=sm_XX` pair per requested architecture.
+
+### Broad compatibility
+
+- Choose a broad compatibility bundle when the user needs coverage across
+  multiple deployed generations rather than peak tuning for one device.
+- A common example is combining Volta, Turing, Ampere, Ada, Hopper, or
+  Blackwell targets in separate `-gencode` pairs so each deployed GPU gets a
+  matching `sm_XX` artifact.
+
 ## Notes
 
 - PTX generation usually targets `compute_XX`, while cubin, fatbin, and SASS
