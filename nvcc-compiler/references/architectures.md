@@ -1,157 +1,74 @@
 # GPU Architecture Reference
 
-## NVIDIA GPU Compute Capabilities
+This page is the shared fact sheet for NVIDIA architecture families used by the
+`nvcc-compiler` skill. Use the thin pages in `arch/` for family-specific compile
+notes, and keep the detailed facts here.
 
-### Volta Architecture (2017)
+## Architecture Cards
 
-| Compute Capability | Architecture | GPUs |
-|-------------------|--------------|------|
-| SM 70 | Volta | Tesla V100, Titan V |
-| SM 72 | Volta | Jetson Xavier, Drive Xavier |
+### Volta
 
-**Key Features:**
-- Tensor Cores (1st gen)
-- Independent thread scheduling
-- Unified memory improvements
-- 32 FP32 cores per SM
+| SM Targets   | Representative GPUs                              | Notable features                                                             |
+| ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| SM 70, SM 72 | Tesla V100, Titan V, Jetson Xavier, Drive Xavier | 1st gen Tensor Cores, independent thread scheduling, improved unified memory |
 
-### Turing Architecture (2018)
+### Turing
 
-| Compute Capability | Architecture | GPUs |
-|-------------------|--------------|------|
-| SM 75 | Turing | RTX 2060/2070/2080/2080 Ti, Titan RTX, Quadro RTX |
+| SM Targets | Representative GPUs                               | Notable features                                                            |
+| ---------- | ------------------------------------------------- | --------------------------------------------------------------------------- |
+| SM 75      | RTX 2060/2070/2080/2080 Ti, Titan RTX, Quadro RTX | 2nd gen Tensor Cores, 1st gen RT Cores, concurrent FP32 and INT32 execution |
 
-**Key Features:**
-- RT Cores (ray tracing)
-- Tensor Cores (2nd gen)
-- Concurrent execution of FP32 and INT32
-- 64 FP32 cores per SM
+### Ampere
 
-### Ampere Architecture (2020)
+| SM Targets          | Representative GPUs                                                                | Notable features                                                 |
+| ------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| SM 80, SM 86, SM 87 | A100, A30, RTX 3060/3070/3080/3090, RTX A4000/A5000/A6000, Jetson Orin, Drive Orin | 3rd gen Tensor Cores, TF32/BF16 support, `cp.async`, MIG on A100 |
 
-| Compute Capability | Architecture | GPUs |
-|-------------------|--------------|------|
-| SM 80 | Ampere | A100, A30 |
-| SM 86 | Ampere | RTX 3060/3070/3080/3090, RTX A4000/A5000/A6000 |
-| SM 87 | Ampere | Jetson Orin, Drive Orin |
+### Ada
 
-**Key Features:**
-- Tensor Cores (3rd gen) with TF32, BF16, FP64
-- Async copy (cp.async)
-- Multi-instance GPU (MIG) on A100
-- 64 FP32 cores per SM (SM 80)
-- 128 FP32 cores per SM (SM 86)
+| SM Targets | Representative GPUs                   | Notable features                                                             |
+| ---------- | ------------------------------------- | ---------------------------------------------------------------------------- |
+| SM 89      | RTX 4060/4070/4080/4090, RTX 6000 Ada | 4th gen Tensor Cores with FP8, 3rd gen RT Cores, Shader Execution Reordering |
 
-### Ada Lovelace Architecture (2022)
+### Hopper
 
-| Compute Capability | Architecture | GPUs |
-|-------------------|--------------|------|
-| SM 89 | Ada | RTX 4060/4070/4080/4090, RTX 6000 Ada |
+| SM Targets    | Representative GPUs  | Notable features                                                                                                      |
+| ------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| SM 90, SM 90a | H100, H100 NVL, H200 | 4th gen Tensor Cores, Thread Block Clusters, Tensor Memory Accelerator, Distributed Shared Memory, Transformer Engine |
 
-**Key Features:**
-- Tensor Cores (4th gen) with FP8
-- RT Cores (3rd gen)
-- Shader Execution Reordering (SER)
-- Opacity Micromaps
-- 128 FP32 cores per SM
+### Blackwell
 
-### Hopper Architecture (2022)
+| SM Targets      | Representative GPUs | Notable features                                                                                                    |
+| --------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| SM 100, SM 100a | B100, B200          | 5th gen Tensor Core instructions such as `tcgen05`, TMA and cluster workflows, architecture-specific `sm_100a` path |
 
-| Compute Capability | Architecture | GPUs |
-|-------------------|--------------|------|
-| SM 90 | Hopper | H100, H200 |
-| SM 90a | Hopper | H100 NVL |
+## Feature Comparison
 
-**Key Features:**
-- Tensor Cores (4th gen) with FP8, FP16, BF16, TF32
-- Thread Block Clusters
-- Tensor Memory Accelerator (TMA)
-- Distributed Shared Memory
-- Transformer Engine
-- 128 FP32 cores per SM
+| Feature                   | Volta   | Turing  | Ampere  | Ada     | Hopper  | Blackwell           |
+| ------------------------- | ------- | ------- | ------- | ------- | ------- | ------------------- |
+| Tensor Cores              | 1st gen | 2nd gen | 3rd gen | 4th gen | 4th gen | 5th gen (`tcgen05`) |
+| RT Cores                  | No      | 1st gen | 2nd gen | 3rd gen | No      | No                  |
+| Async copy (`cp.async`)   | No      | No      | Yes     | Yes     | Yes     | Yes                 |
+| TF32                      | No      | No      | Yes     | Yes     | Yes     | Yes                 |
+| BF16                      | No      | No      | Yes     | Yes     | Yes     | Yes                 |
+| FP8                       | No      | No      | No      | Yes     | Yes     | Yes                 |
+| Thread Block Clusters     | No      | No      | No      | No      | Yes     | Yes                 |
+| Tensor Memory Accelerator | No      | No      | No      | No      | Yes     | Yes                 |
 
-## Architecture Selection Guide
+## Detection
 
-### For Development and Testing
-```bash
-# Use compute_ for PTX (forward compatible)
-nvcc --ptx -arch=compute_80 kernel.cu
-```
+### `nvidia-smi`
 
-### For Production Deployment
-```bash
-# Use sm_ for specific GPU (optimized)
-nvcc -arch=sm_80 kernel.cu
-```
-
-### For Multi-GPU Support
-```bash
-# Generate code for multiple architectures
-nvcc -gencode=arch=compute_80,code=sm_80 \
-     -gencode=arch=compute_86,code=sm_86 \
-     -gencode=arch=compute_90,code=sm_90 \
-     kernel.cu
-```
-
-### For Maximum Compatibility
-```bash
-# Include PTX for future GPUs
-nvcc -gencode=arch=compute_80,code=compute_80 \
-     -gencode=arch=compute_80,code=sm_80 \
-     -gencode=arch=compute_86,code=sm_86 \
-     -gencode=arch=compute_90,code=sm_90 \
-     kernel.cu
-```
-
-## Common Architecture Combinations
-
-### Data Center (AI/HPC)
-```bash
-# A100 + H100
--gencode=arch=compute_80,code=sm_80 \
--gencode=arch=compute_90,code=sm_90
-```
-
-### Gaming/Workstation
-```bash
-# RTX 30/40 series
--gencode=arch=compute_86,code=sm_86 \
--gencode=arch=compute_89,code=sm_89
-```
-
-### Broad Compatibility
-```bash
-# Volta through Hopper
--gencode=arch=compute_70,code=sm_70 \
--gencode=arch=compute_75,code=sm_75 \
--gencode=arch=compute_80,code=sm_80 \
--gencode=arch=compute_86,code=sm_86 \
--gencode=arch=compute_89,code=sm_89 \
--gencode=arch=compute_90,code=sm_90
-```
-
-## Feature Support by Architecture
-
-| Feature | Volta (70) | Turing (75) | Ampere (80/86) | Ada (89) | Hopper (90) |
-|---------|-----------|-------------|----------------|----------|-------------|
-| Tensor Cores | ✓ (1st) | ✓ (2nd) | ✓ (3rd) | ✓ (4th) | ✓ (4th) |
-| RT Cores | ✗ | ✓ (1st) | ✓ (2nd) | ✓ (3rd) | ✗ |
-| Async Copy | ✗ | ✗ | ✓ | ✓ | ✓ |
-| TF32 | ✗ | ✗ | ✓ | ✓ | ✓ |
-| BF16 | ✗ | ✗ | ✓ | ✓ | ✓ |
-| FP8 | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Thread Block Clusters | ✗ | ✗ | ✗ | ✗ | ✓ |
-| TMA | ✗ | ✗ | ✗ | ✗ | ✓ |
-
-## Detecting GPU Architecture
-
-### Using nvidia-smi
 ```bash
 nvidia-smi --query-gpu=compute_cap --format=csv,noheader
-# Output: 8.0 (for SM 80)
+# Example output: 8.0
 ```
 
-### Using CUDA Runtime
+Map the reported compute capability to an SM target such as `8.0 -> sm_80` or
+`10.0 -> sm_100`.
+
+### CUDA Runtime
+
 ```cuda
 int device;
 cudaGetDevice(&device);
@@ -160,33 +77,21 @@ cudaDeviceProp prop;
 cudaGetDeviceProperties(&prop, device);
 
 printf("Compute Capability: %d.%d\n", prop.major, prop.minor);
-// Output: Compute Capability: 8.0 (for SM 80)
 ```
 
-### Using deviceQuery
+### CUDA Samples
+
 ```bash
-# CUDA samples
 /usr/local/cuda/samples/bin/x86_64/linux/release/deviceQuery
 ```
 
-## Recommended Architectures by Use Case
+## Notes
 
-### Deep Learning Training
-- **Primary**: SM 90 (H100) - Best performance with FP8
-- **Alternative**: SM 80 (A100) - Excellent for FP16/BF16
-
-### Deep Learning Inference
-- **Primary**: SM 89 (RTX 4090) - Good price/performance
-- **Alternative**: SM 90 (H100) - Maximum throughput
-
-### Scientific Computing
-- **Primary**: SM 90 (H100) - FP64 Tensor Cores
-- **Alternative**: SM 80 (A100) - Strong FP64 performance
-
-### Graphics/Rendering
-- **Primary**: SM 89 (RTX 4090) - RT Cores + DLSS 3
-- **Alternative**: SM 86 (RTX 3090) - Good value
-
-### Edge/Embedded
-- **Primary**: SM 87 (Jetson Orin) - Power efficient
-- **Alternative**: SM 72 (Jetson Xavier) - Lower cost
+- PTX generation usually targets `compute_XX`, while cubin, fatbin, and SASS
+  workflows typically target one or more `sm_XX` values.
+- Prefer the thin architecture docs in `arch/` when the user names a family or
+  when system detection already tells you which family to target.
+- Keep family facts centralized here so `SKILL.md`, `README.md`, and the thin
+  `arch/*.md` pages do not drift.
+- Use `sm_100a` only when the target environment or source path needs
+  architecture-specific Blackwell features.
