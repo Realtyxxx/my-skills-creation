@@ -1,24 +1,39 @@
 # MY_SKILLS_CREATION
 
-Personal workspace for creating and organizing skills.
+A collection of reusable skills for CUDA tooling, operator analysis, persistent memory, and structured knowledge reuse.
 
 ## Overview
 
-This repository is used to:
+This repository is a skills workspace: each directory captures a reusable capability distilled from real tasks, repeated workflows, and practical debugging work.
 
-- draft and iterate skill definitions
-- keep skill-related experiments in one place
-- version control skill updates
+The goal is not just to store notes, but to package proven ways of working into skills that are easier to discover, reuse, and improve over time.
 
-## Current Structure
+## Skills
 
-- `godbolt-cuda-analyzer/` - CUDA performance analysis skill
-  (PTX/SASS via Godbolt)
-- `llm-op-analyzer/` - LLM operator analysis skill (13-section documentation)
-- `nvcc-blackwell-ir-extractor/` - Blackwell (sm_100/sm_100a) IR
-  extraction and SASS dump utility
-- `nvcc-compiler/` - Comprehensive CUDA compilation and IR generation
-  skill (PTX/SASS/cubin/fatbin)
+### `agents-server-memory/`
+Structured persistent memory for AI agents, with project-scoped knowledge, trace history, tagging, search, and maintenance commands.
+
+**Value:** Helps turn short-lived session context into reusable long-term knowledge, reducing repeated explanation and making multi-session work more consistent.
+
+### `godbolt-cuda-analyzer/`
+Remote CUDA PTX/SASS analysis through Godbolt Compiler Explorer, focused on instruction inspection, optimization detection, and performance reasoning without requiring a local CUDA environment.
+
+**Value:** Makes low-level CUDA performance analysis much more accessible, especially when you want fast feedback on generated assembly or optimization behavior.
+
+### `llm-op-analyzer/`
+A strict structured prompt for breaking deep learning operators into implementation-ready engineering documentation, including diagrams, shape tracing, math, memory access, and debugging probes.
+
+**Value:** Turns complex operators into readable engineering blueprints, which is useful for implementation review, debugging, onboarding, and design communication.
+
+### `nvcc-blackwell-ir-extractor/`
+A specialized Blackwell-focused compilation utility for extracting PTX, cubin, SASS, and other intermediate artifacts when targeting `sm_100` / `sm_100a`.
+
+**Value:** Shortens the path from CUDA source to Blackwell-specific IR inspection, making it easier to verify whether codegen is actually using the architecture features you care about.
+
+### `nvcc-compiler/`
+A routing-oriented CUDA compilation skill that helps choose the right `nvcc` workflow for PTX, SASS, cubin, fatbin, and architecture-aware output inspection.
+
+**Value:** Reduces friction in CUDA compilation tasks by turning scattered compiler knowledge into a reusable, architecture-aware workflow.
 
 ## Install Skills
 
@@ -54,7 +69,7 @@ directory first:
 python3 scripts/install_skills.py --force
 ```
 
-Notes:
+## Notes
 
 - Codex target path is auto-detected. If `~/.codex/skills` already
   exists, the script uses it for compatibility. Otherwise it defaults
@@ -66,5 +81,6 @@ Notes:
 ## Next Steps
 
 - add new skill directories and documentation
+- continue refining skill descriptions and examples
 - commit changes in small, focused commits
-- keep `README.md` updated as structure evolves
+- keep `README.md` updated as the skill set evolves
